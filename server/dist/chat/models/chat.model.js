@@ -30,6 +30,10 @@ __decorate([
     __metadata("design:type", Array)
 ], ChatModel.prototype, "users", void 0);
 __decorate([
+    (0, sequelize_typescript_1.HasMany)(() => chat_user_model_1.ChatUserModel),
+    __metadata("design:type", Array)
+], ChatModel.prototype, "chatUserId", void 0);
+__decorate([
     (0, sequelize_typescript_1.HasMany)(() => message_model_1.MessageModel),
     __metadata("design:type", Array)
 ], ChatModel.prototype, "message", void 0);

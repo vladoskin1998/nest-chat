@@ -30,12 +30,20 @@ __decorate([
     __metadata("design:type", Number)
 ], ChatUserModel.prototype, "userId", void 0);
 __decorate([
+    (0, sequelize_typescript_1.BelongsTo)(() => auth_model_1.AuthModel),
+    __metadata("design:type", auth_model_1.AuthModel)
+], ChatUserModel.prototype, "user", void 0);
+__decorate([
     (0, sequelize_typescript_1.ForeignKey)(() => chat_model_1.ChatModel),
     (0, sequelize_typescript_1.Column)(sequelize_typescript_1.DataType.INTEGER),
     __metadata("design:type", Number)
 ], ChatUserModel.prototype, "chatId", void 0);
+__decorate([
+    (0, sequelize_typescript_1.BelongsTo)(() => chat_model_1.ChatModel),
+    __metadata("design:type", chat_model_1.ChatModel)
+], ChatUserModel.prototype, "chat", void 0);
 ChatUserModel = __decorate([
-    (0, sequelize_typescript_1.Table)({ tableName: 'chat-users' })
+    (0, sequelize_typescript_1.Table)({ tableName: 'chat_users' })
 ], ChatUserModel);
 exports.ChatUserModel = ChatUserModel;
 //# sourceMappingURL=chat-user.model.js.map

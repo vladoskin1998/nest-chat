@@ -18,12 +18,10 @@ const sequelize_1 = require("@nestjs/sequelize");
 const auth_model_1 = require("./auth.model");
 const bcrypt = require("bcrypt");
 const token_service_1 = require("../token/token.service");
-const token_model_1 = require("../token/token.model");
 const enum_1 = require("../enum/enum");
 let AuthService = class AuthService {
-    constructor(authModel, tokenModel, tokenService) {
+    constructor(authModel, tokenService) {
         this.authModel = authModel;
-        this.tokenModel = tokenModel;
         this.tokenService = tokenService;
     }
     async registration(authDto) {
@@ -36,8 +34,9 @@ let AuthService = class AuthService {
         if (!newUser[1]) {
             throw new common_1.HttpException('user already created', common_1.HttpStatus.BAD_REQUEST);
         }
-        const tokens = await this.tokenService.createTokens({ email, role });
-        await newUser[0].$create('tokens', tokens);
+        const createdUser = newUser[0];
+        const tokens = await this.tokenService.createTokens({ id: createdUser.id, email, role });
+        await createdUser.$create('tokens', tokens);
         return tokens;
     }
     async login(authDto) {
@@ -51,6 +50,7 @@ let AuthService = class AuthService {
             throw new common_1.HttpException('bad password', common_1.HttpStatus.BAD_REQUEST);
         }
         const tokens = await this.tokenService.createTokens({
+            id: user.id,
             email,
             role: user.role,
         });
@@ -58,27 +58,28 @@ let AuthService = class AuthService {
         await oldToken.update(tokens);
         return tokens;
     }
-    async refresh(refreshToken) {
-        const token = await this.tokenService.findToken({ refreshToken });
-        const verifyToken = await this.tokenService.verifyToken(refreshToken);
-        if (!verifyToken) {
+    async refresh({ refreshToken }) {
+        if (!refreshToken) {
             throw new common_1.HttpException('not authorization', common_1.HttpStatus.UNAUTHORIZED);
         }
-        const { email, role } = await token.$get('user');
-        const newToken = await this.tokenService.createTokens({ email, role });
+        const token = await this.tokenService.findToken({ refreshToken });
+        const verifyToken = await this.tokenService.verifyToken(refreshToken);
+        if (verifyToken instanceof Error) {
+            throw new common_1.HttpException('not authorization', common_1.HttpStatus.UNAUTHORIZED);
+        }
+        const { id, email, role } = await token.$get('user');
+        const newToken = await this.tokenService.createTokens({ id, email, role });
         await token.update(newToken);
         return newToken;
     }
-    async delete(token) {
-        const { email } = await this.tokenService.verifyToken(token);
-        await this.authModel.destroy({ where: { email: email } });
+    async logout(refreshToken) {
+        await this.tokenService.logoutUser(refreshToken);
     }
 };
 AuthService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, sequelize_1.InjectModel)(auth_model_1.AuthModel)),
-    __param(1, (0, sequelize_1.InjectModel)(token_model_1.TokenModel)),
-    __metadata("design:paramtypes", [Object, Object, token_service_1.TokenService])
+    __metadata("design:paramtypes", [Object, token_service_1.TokenService])
 ], AuthService);
 exports.AuthService = AuthService;
 //# sourceMappingURL=auth.service.js.map

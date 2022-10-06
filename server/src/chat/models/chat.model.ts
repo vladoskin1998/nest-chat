@@ -23,6 +23,9 @@ export class ChatModel extends Model<ChatModel> {
   @BelongsToMany(() => AuthModel, () => ChatUserModel)
   users: AuthModel[]
 
+  @HasMany(() => ChatUserModel)
+  chatUserId: ChatUserModel[]
+
   @HasMany(() => MessageModel)
   message: MessageModel[]
 }

@@ -1,6 +1,7 @@
 import { Roles } from '../enum/enum'
 
 export interface PayloadToken {
+  id:number,
   email: string
   role?: Roles
 }

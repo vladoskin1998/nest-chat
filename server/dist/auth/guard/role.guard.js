@@ -25,7 +25,11 @@ let RolesGuard = class RolesGuard {
         }
         const request = context.switchToHttp().getRequest();
         const token = request.headers.authorization;
-        const { role } = await this.tokenService.verifyToken(token);
+        const payload = await this.tokenService.verifyToken(token);
+        if (payload instanceof Error) {
+            throw new common_1.HttpException("UNAUTHORIZED, Bad token", common_1.HttpStatus.UNAUTHORIZED);
+        }
+        const { role } = payload;
         if (!roles.includes(role)) {
             throw new common_1.HttpException('No access right', common_1.HttpStatus.FORBIDDEN);
         }

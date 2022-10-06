@@ -1,5 +1,5 @@
 import { Controller, UseGuards,Get,Query } from '@nestjs/common';
-import { AuthGuard } from '../auth/guard/auth.guard';
+import { AuthHttpGuard } from '../auth/guard/auth-http.guard';
 import { UserService } from './user.service';
 
 @Controller('user')
@@ -9,10 +9,10 @@ export class UserController {
         private userService: UserService
     ){}
     
-    // @UseGuards(AuthGuard)
+    @UseGuards(AuthHttpGuard)
     @Get('/search-user')
     async searchUser(
-        @Query('email') 
+        @Query('email')
         email: string
     ){
         console.log(email);

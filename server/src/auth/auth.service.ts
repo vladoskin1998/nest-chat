@@ -6,14 +6,13 @@ import * as bcrypt from 'bcrypt'
 import { TokenService } from '../token/token.service'
 import { TokenModel } from '../token/token.model'
 import { Roles } from 'src/enum/enum'
+import { Response } from 'express'
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectModel(AuthModel)
     private authModel: typeof AuthModel,
-    @InjectModel(TokenModel)
-    private tokenModel: typeof TokenModel,
     private tokenService: TokenService,
   ) {}
 
@@ -33,9 +32,11 @@ export class AuthService {
       throw new HttpException('user already created', HttpStatus.BAD_REQUEST)
     }
 
-    const tokens = await this.tokenService.createTokens({ email, role })
+    const createdUser = newUser[0]
 
-    await newUser[0].$create('tokens', tokens)
+    const tokens = await this.tokenService.createTokens({ id:createdUser.id, email, role })
+
+    await createdUser.$create('tokens', tokens)
 
     return tokens
   }
@@ -56,6 +57,7 @@ export class AuthService {
     }
 
     const tokens = await this.tokenService.createTokens({
+      id: user.id,
       email,
       role: user.role,
     })
@@ -67,31 +69,33 @@ export class AuthService {
     return tokens
   }
 
-  async refresh(refreshToken: string) {
-    const token = await this.tokenService.findToken({ refreshToken })
-    // const token = await this.tokenModel.findOne({ where: { refreshToken } })
+  async refresh({ refreshToken }:{ refreshToken?: string }) {
 
-    // if (!token) {
-    //   throw new HttpException('refresh token is absent', HttpStatus.BAD_REQUEST)
-    // }
-
-    const verifyToken = await this.tokenService.verifyToken(refreshToken)
-
-    if (!verifyToken) {
+    // console.log('refreshToken------>', refreshToken);
+    
+    if (!refreshToken) {
       throw new HttpException('not authorization', HttpStatus.UNAUTHORIZED)
     }
 
-    const { email, role } = await token.$get('user')
+    const token = await this.tokenService.findToken({ refreshToken })
 
-    const newToken = await this.tokenService.createTokens({ email, role })
+    const verifyToken = await this.tokenService.verifyToken(refreshToken)
+
+    if (verifyToken instanceof Error) {
+      throw new HttpException('not authorization', HttpStatus.UNAUTHORIZED)
+    }
+
+    const { id, email, role } = await token.$get('user')
+
+    const newToken = await this.tokenService.createTokens({ id, email, role })
 
     await token.update(newToken)
 
     return newToken
   }
 
-  async delete(token: string): Promise<void> {
-    const { email } = await this.tokenService.verifyToken(token)
-    await this.authModel.destroy({ where: { email: email } })
+  async logout(refreshToken:string): Promise<void> {
+    await this.tokenService.logoutUser(refreshToken)
   }
+
 }

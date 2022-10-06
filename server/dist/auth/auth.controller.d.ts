@@ -13,5 +13,5 @@ export declare class AuthController {
     refresh(request: Request, response: Response): Promise<{
         accessToken: string;
     }>;
-    delete(authorization: string, response: Response): Promise<void>;
+    logout(request: Request, response: Response): Promise<void>;
 }

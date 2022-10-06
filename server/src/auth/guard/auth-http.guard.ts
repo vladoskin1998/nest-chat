@@ -5,7 +5,7 @@ import { InjectModel } from '@nestjs/sequelize'
 import { AuthModel } from '../auth.model'
 import { Request } from 'express'
 @Injectable()
-export class AuthGuard implements CanActivate {
+export class AuthHttpGuard implements CanActivate {
   constructor(
     private tokenService: TokenService,
     @InjectModel(AuthModel)
@@ -17,19 +17,25 @@ export class AuthGuard implements CanActivate {
   ): boolean | Promise<boolean> | Observable<boolean> {
     const request: Request = context.switchToHttp().getRequest()
 
-    const token = request.headers?.authorization
+    const tokenAccess = request.headers?.authorization
     
-    if (!token) {
+    if (!tokenAccess) {
       throw new HttpException("Request don`t have authorization header", HttpStatus.BAD_REQUEST)
     }
 
-    return this.authByAccessToken(token)
+    return this.authByAccessToken(tokenAccess)
   }
 
   async authByAccessToken(token: string): Promise<boolean> {
     
-    const {email} = await this.tokenService.verifyToken(token)
+    const payload = await this.tokenService.verifyToken(token)
 
+    if(payload instanceof Error){
+      throw new HttpException("UNAUTHORIZED, Bad token", HttpStatus.UNAUTHORIZED)
+    }
+
+    const {email} = payload
+    
     const user = await this.authModel.findOne({
       where: { email },
     })

@@ -25,25 +25,25 @@ let TokenService = class TokenService {
         this.configService = configService;
         this.tokenModel = tokenModel;
     }
-    async createTokens({ email, role = enum_1.Roles.USER, }) {
+    async createTokens({ id, email, role = enum_1.Roles.USER, }) {
         return {
-            accessToken: this.jwtService.sign({ email, role }, {
-                expiresIn: 335,
+            accessToken: this.jwtService.sign({ id, email, role }, {
+                expiresIn: 15,
             }),
-            refreshToken: this.jwtService.sign({ email, role }, {
-                expiresIn: 535,
+            refreshToken: this.jwtService.sign({ id, email, role }, {
+                expiresIn: 295,
             }),
         };
     }
     async verifyToken(token) {
         try {
-            const tokenPayload = this.jwtService.verify(token, {
+            const result = this.jwtService.verify(token, {
                 secret: this.configService.get('JWT_SECRET_KEY'),
             });
-            return tokenPayload;
+            return result;
         }
-        catch (_a) {
-            throw new common_1.HttpException('Bad token', common_1.HttpStatus.UNAUTHORIZED);
+        catch (e) {
+            return e;
         }
     }
     async findToken(tokens) {
@@ -52,6 +52,9 @@ let TokenService = class TokenService {
             throw new common_1.HttpException('refresh or access token is not define', common_1.HttpStatus.BAD_REQUEST);
         }
         return token;
+    }
+    async logoutUser(refreshToken) {
+        await this.tokenModel.update({ accessToken: null, refreshToken: null }, { where: { refreshToken } });
     }
 };
 TokenService = __decorate([

@@ -7,11 +7,13 @@ import {
   UseGuards,
   Headers,
   Delete,
+  HttpException,
 } from '@nestjs/common'
 import { Response, Request } from 'express'
+import { request } from 'http'
 import { AuthService } from './auth.service'
 import { AuthDto } from './dto/auth.dto'
-import { AuthGuard } from './guard/auth.guard'
+import { AuthHttpGuard } from './guard/auth-http.guard'
 // import { RolesGuard } from './guard/role.guard'
 // import { RoleMetadata} from './guard/role.metadata'
 // import { Roles } from '../enum/enum'
@@ -49,33 +51,26 @@ export class AuthController {
     @Req() request: Request,
     @Res({ passthrough: true }) response: Response,
   ) {
-    const { refreshToken } = request.cookies
-
-    const newToken = await this.authService.refresh(refreshToken)
+    
+    const newToken = await this.authService.refresh(request.cookies)
 
     response.cookie('refreshToken', newToken.refreshToken)
 
     return { accessToken: newToken.accessToken }
   }
 
-  @UseGuards(AuthGuard)
-  @Delete('/delete')
-  async delete(
-    @Headers('Authorization') authorization: string,
+  @Delete('/logout')
+  async logout(
+    @Req() request: Request,
     @Res({ passthrough: true }) response: Response,
   ) {
-    await this.authService.delete(authorization)
+    
+    const refreshToken = request.cookies['refreshToken']
+
+    await this.authService.logout(refreshToken)
+
     response.clearCookie('refreshToken')
     response.status(204)
-  }
 
- 
-  // @UseGuards(AuthGuard)
-  // @RoleMetadata(Roles.ADMIN)
-  // @UseGuards(RolesGuard)
-  // @Get('/users')
-  // async getUser() {
-  //   const users = await this.authService.getUsers()
-  //   return users
-  // }
+  }
 }

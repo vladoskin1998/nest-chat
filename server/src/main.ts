@@ -12,7 +12,7 @@ async function bootstrap() {
   app.setGlobalPrefix('api')
   app.enableCors(
     {
-      origin: '*',
+      origin: 'http://localhost:3000',
       credentials: true,
     },
   );

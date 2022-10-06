@@ -6,6 +6,7 @@ import {
   HasOne,
   Default,
   BelongsToMany,
+  HasMany
 } from 'sequelize-typescript'
 import { TokenModel } from '../token/token.model'
 import { Roles } from '../enum/enum'
@@ -38,4 +39,7 @@ export class AuthModel extends Model<AuthModel, UserCreationAttrs> {
 
   @BelongsToMany(() => ChatModel, () => ChatUserModel)
   chats: ChatModel[]
+
+  @HasMany(() => ChatUserModel)
+  chatUserId: ChatUserModel[]
 }

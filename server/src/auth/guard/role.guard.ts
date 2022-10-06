@@ -26,8 +26,13 @@ export class RolesGuard implements CanActivate {
 
     const request: Request = context.switchToHttp().getRequest()
     const token = request.headers.authorization
-    const { role } = await this.tokenService.verifyToken(token)
+    const payload= await this.tokenService.verifyToken(token)
 
+    if(payload instanceof Error){
+      throw new HttpException("UNAUTHORIZED, Bad token", HttpStatus.UNAUTHORIZED)
+    }
+
+    const { role } = payload
     if (!roles.includes(role)) {
       throw new HttpException('No access right', HttpStatus.FORBIDDEN)
     }

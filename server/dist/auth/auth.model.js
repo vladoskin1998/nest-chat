@@ -47,6 +47,10 @@ __decorate([
     (0, sequelize_typescript_1.BelongsToMany)(() => chat_model_1.ChatModel, () => chat_user_model_1.ChatUserModel),
     __metadata("design:type", Array)
 ], AuthModel.prototype, "chats", void 0);
+__decorate([
+    (0, sequelize_typescript_1.HasMany)(() => chat_user_model_1.ChatUserModel),
+    __metadata("design:type", Array)
+], AuthModel.prototype, "chatUserId", void 0);
 AuthModel = __decorate([
     (0, sequelize_typescript_1.Table)({ tableName: 'users' })
 ], AuthModel);

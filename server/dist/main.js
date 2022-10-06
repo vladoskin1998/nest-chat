@@ -10,7 +10,7 @@ async function bootstrap() {
     app.useGlobalPipes(new common_1.ValidationPipe());
     app.setGlobalPrefix('api');
     app.enableCors({
-        origin: '*',
+        origin: 'http://localhost:3000',
         credentials: true,
     });
     await app.listen(process.env.APP_PORT || 5001, () => console.log(`Start app on ${process.env.APP_PORT || 5001}`));

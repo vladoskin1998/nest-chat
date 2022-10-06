@@ -18,37 +18,37 @@ export class TokenService {
   ) {}
 
   async createTokens({
+    id,
     email,
     role = Roles.USER,
   }: PayloadToken): Promise<TokenDto> {
     return {
       accessToken: this.jwtService.sign(
-        { email, role },
+        { id,email, role },
         {
-          expiresIn: 335,
+          expiresIn: 15,
         },
       ),
       refreshToken: this.jwtService.sign(
-        { email, role },
+        { id,email, role },
         {
-          expiresIn: 535,
+          expiresIn: 295,
         },
       ),
     }
   }
 
-  async verifyToken(token: string) {
-    // console.log('token', token)
+  async verifyToken(token: string):Promise<PayloadToken | Error> {
     try {
-      const tokenPayload = this.jwtService.verify<Required<PayloadToken>>(
+      const result = this.jwtService.verify<Required<PayloadToken>>(
         token,
         {
           secret: this.configService.get('JWT_SECRET_KEY'),
         },
       )
-      return tokenPayload
-    } catch {
-      throw new HttpException('Bad token', HttpStatus.UNAUTHORIZED)
+      return result 
+    } catch(e) {
+      return e
     }
   }
 
@@ -63,5 +63,11 @@ export class TokenService {
     }
 
     return token
+  }
+
+  async logoutUser(refreshToken:string){
+    await this.tokenModel.update(
+      {accessToken: null, refreshToken:null},
+      {where: {refreshToken}})
   }
 }

@@ -10,10 +10,11 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ChatGateway = void 0;
+const common_1 = require("@nestjs/common");
 const websockets_1 = require("@nestjs/websockets");
 const socket_io_1 = require("socket.io");
 let ChatGateway = class ChatGateway {
-    handleMessage(client, payload) {
+    handleMessage() {
         return 'Hello world!';
     }
 };
@@ -22,9 +23,10 @@ __decorate([
     __metadata("design:type", socket_io_1.Server)
 ], ChatGateway.prototype, "server", void 0);
 __decorate([
+    (0, common_1.UseGuards)(),
     (0, websockets_1.SubscribeMessage)('send_message'),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:paramtypes", []),
     __metadata("design:returntype", String)
 ], ChatGateway.prototype, "handleMessage", null);
 ChatGateway = __decorate([

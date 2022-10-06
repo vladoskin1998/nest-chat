@@ -9,7 +9,8 @@ export declare class TokenService {
     private configService;
     private tokenModel;
     constructor(jwtService: JwtService, configService: ConfigService, tokenModel: typeof TokenModel);
-    createTokens({ email, role, }: PayloadToken): Promise<TokenDto>;
-    verifyToken(token: string): Promise<Required<PayloadToken>>;
+    createTokens({ id, email, role, }: PayloadToken): Promise<TokenDto>;
+    verifyToken(token: string): Promise<PayloadToken | Error>;
     findToken(tokens: TokensType): Promise<TokenModel>;
+    logoutUser(refreshToken: string): Promise<void>;
 }

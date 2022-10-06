@@ -16,7 +16,6 @@ exports.AuthController = void 0;
 const common_1 = require("@nestjs/common");
 const auth_service_1 = require("./auth.service");
 const auth_dto_1 = require("./dto/auth.dto");
-const auth_guard_1 = require("./guard/auth.guard");
 let AuthController = class AuthController {
     constructor(authService) {
         this.authService = authService;
@@ -32,13 +31,13 @@ let AuthController = class AuthController {
         return { accessToken: tokens.accessToken };
     }
     async refresh(request, response) {
-        const { refreshToken } = request.cookies;
-        const newToken = await this.authService.refresh(refreshToken);
+        const newToken = await this.authService.refresh(request.cookies);
         response.cookie('refreshToken', newToken.refreshToken);
         return { accessToken: newToken.accessToken };
     }
-    async delete(authorization, response) {
-        await this.authService.delete(authorization);
+    async logout(request, response) {
+        const refreshToken = request.cookies['refreshToken'];
+        await this.authService.logout(refreshToken);
         response.clearCookie('refreshToken');
         response.status(204);
     }
@@ -68,14 +67,13 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "refresh", null);
 __decorate([
-    (0, common_1.UseGuards)(auth_guard_1.AuthGuard),
-    (0, common_1.Delete)('/delete'),
-    __param(0, (0, common_1.Headers)('Authorization')),
+    (0, common_1.Delete)('/logout'),
+    __param(0, (0, common_1.Req)()),
     __param(1, (0, common_1.Res)({ passthrough: true })),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
-], AuthController.prototype, "delete", null);
+], AuthController.prototype, "logout", null);
 AuthController = __decorate([
     (0, common_1.Controller)('auth'),
     __metadata("design:paramtypes", [auth_service_1.AuthService])

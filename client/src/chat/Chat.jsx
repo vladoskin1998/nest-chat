@@ -1,21 +1,19 @@
 import React, { useState, useEffect, useRef } from 'react';
-import './App.css';
 import io from 'socket.io-client';
 import { SearchUser } from './SearchUser';
 import { ChatList } from './ChatList';
+import { Navbar } from '../navbar/Navbar';
+import { ChatMessenger } from './ChatMessenger';
+
 
 const URL = "http://localhost:5000";
-//let socket = io(URL, { autoConnect: false });
 
 
-function App() {
+export const Chat = () => {
 
     let socket = useRef(null)
 
-
-
     const [user, setUser] = useState([])
-
 
     const [message, setMessage] = useState({
         userId: '',
@@ -24,7 +22,7 @@ function App() {
     })
     const [messageList, setMessageList] = useState([])
 
-    console.log(socket);
+    // console.log(socket);
 
     useEffect(() => {
 
@@ -53,7 +51,7 @@ function App() {
     }, [])
 
 
-    console.log("message--->", message);
+    // console.log("message--->", message);
 
     const send = () => {
         socket.current.emit('send_message', message.chatid, message.message)
@@ -67,45 +65,47 @@ function App() {
     }
 
 
-    console.log(user);
+    // console.log(user);
     return (
         socket.current !== 0
             ?
-            <div style={{ display: 'grid', gridTemplateColumns: '200px 200px 1fr' }}>
-                <SearchUser />
-                <ChatList soket={socket}/>
-                <div style={{ display: 'flex' }}>
-                    <div style={{ width: '20vw' }}>
-                        {
-                            user.filter(it => it.userID !== socket.current.id).map((it, index) => <div onClick={() => chatToUser(it)} key={index} style={styleUser}>
-                                user {index}
-                            </div>
-                            )
-                        }
-                    </div>
-                    <div>
-                        <div style={styleInput}>
-                            <input type="text"
-                                onChange={e => setMessage(s => ({ ...s, message: e.target.value }))}
-                                value={message.message}
-                            />
-                            <button onClick={send}>send</button>
-                        </div>
-                        <div>
+            <>
+                <Navbar />
+                <div style={{ display: 'grid', margin:'10px', gridTemplateColumns: '250px 250px 1fr', columnGap:'15px' }}>
+                    <SearchUser />
+                    <ChatList soket={socket} />
+                    <ChatMessenger />
+                    {/* <div style={{ display: 'flex' }}>
+                        <div style={{ width: '20vw' }}>
                             {
-                                messageList.map((it, index) => <div style={{ padding: "15px" }} key={index}>{it}</div>)
+                                user.filter(it => it.userID !== socket.current.id).map((it, index) => <div onClick={() => chatToUser(it)} key={index} style={styleUser}>
+                                    user {index}
+                                </div>
+                                )
                             }
                         </div>
-                    </div>
+                        <div>
+                            <div style={styleInput}>
+                                <input type="text"
+                                    onChange={e => setMessage(s => ({ ...s, message: e.target.value }))}
+                                    value={message.message}
+                                />
+                                <button onClick={send}>send</button>
+                            </div>
+                            <div>
+                                {
+                                    messageList.map((it, index) => <div style={{ padding: "15px" }} key={index}>{it}</div>)
+                                }
+                            </div>
+                        </div>
+                    </div> */}
                 </div>
-            </div>
+            </>
+
             :
             <div>...loading</div>
     );
 }
-
-export default App;
-
 
 
 
