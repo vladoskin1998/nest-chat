@@ -8,7 +8,6 @@ import { LEAVE_ROOM, JOIN_ROOM, SEND_PRIVATE_MESSAGE, GET_PRIVATE_MESSAGE } from
 export const Messenger = ({ socket }) => {
 
     const [message, setMessage] = useState('')
-
     const [historyOnline, setHistoryOnline] = useState([])
 
     const { destinationEmail, currentChatId } = useSelector(state => state.chatReducer)

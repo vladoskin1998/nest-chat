@@ -1,6 +1,5 @@
 import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common'
 import { Reflector } from '@nestjs/core'
-import { Observable } from 'rxjs'
 import { Socket } from 'socket.io'
 import { SocketEvent } from 'src/enum/enum'
 import { TokenService } from 'src/token/token.service'

@@ -12,16 +12,11 @@ import { NOTIFICATION, JOIN_ROOM, AUTH_SOCKET } from '../config';
 import { useState } from 'react';
 import { $auth } from '../api/Api';
 
-
-
 export const Chat = () => {
 
     const socket = useRef(null)
-
     const [load, setLoad] = useState(false)
-
     const dispatch = useDispatch()
-
     const { email } = useSelector(state => state.authReducer.payloadUser)
 
     useEffect(() => {
@@ -35,11 +30,6 @@ export const Chat = () => {
         if (socket.current) {
             setLoad(true)
         }
-
-
-        socket.current?.on('connect', () => {
-            console.log('Successfully connected!');
-        });
 
         console.log(socket.current);
 
@@ -58,16 +48,6 @@ export const Chat = () => {
                 document.location.replace(`http://${window.location.host}`);
                 localStorage.removeItem('accessToken')
             }
-
-            // .then((res) => {
-            //     console.log("socketEvent---->", socketEvent);
-            //     localStorage.setItem('accessToken', res.data.accessToken);
-            //     socket.current?.emit(socketEvent, payload)
-            // })
-            // .catch(e => {
-            //     document.location.replace(`http://${window.location.host}`);
-            //     localStorage.removeItem('accessToken')
-            // })
         })
 
         socket.current.emit(JOIN_ROOM, email)

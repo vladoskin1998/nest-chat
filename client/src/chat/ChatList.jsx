@@ -20,12 +20,11 @@ export const ChatList = ({ socket }) => {
     }
 
     useEffect(() => {
-
-   
         socket.current?.on(UPDATE_LIST_CHAT, () => {
             getChatList()
             console.log(UPDATE_LIST_CHAT);
         })
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     useEffect(() => {

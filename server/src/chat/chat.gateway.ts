@@ -8,8 +8,6 @@ import {
 import { Server, Socket } from 'socket.io'
 import { ChatService } from './chat.service'
 import { SocketEvent } from '../enum/enum'
-import { TokenService } from '../token/token.service'
-import { UserService } from '../user/user.service';
 import { SetMetadata, UseGuards } from '@nestjs/common'
 import { ChatAuthGuard } from './guard/chat-auth.guard'
 import { RoomType } from '../types/types'
