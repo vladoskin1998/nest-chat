@@ -1,6 +1,6 @@
-export declare class ChatDto {
-    usersId: number[];
-}
 export declare class ListDto {
-    userId: number;
+    sourceUserId: number;
+}
+export declare class ChatDto extends ListDto {
+    destinationUserId: number;
 }

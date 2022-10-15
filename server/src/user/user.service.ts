@@ -1,16 +1,35 @@
 import { Injectable } from '@nestjs/common'
 import { InjectModel } from '@nestjs/sequelize'
 import { Op } from 'sequelize'
-import { AuthModel } from '../auth/auth.model'
+import { FindAuthType } from '../types/types';
+import { UserModel } from './user.model'
+import { AuthDto } from '../auth/dto/auth.dto';
 
 @Injectable()
 export class UserService {
   constructor(
-    @InjectModel(AuthModel)
-    private authModel: typeof AuthModel,
+    @InjectModel(UserModel)
+    private userModel: typeof UserModel,
   ) {}
+
+  async createOrFindUser(authDto:AuthDto) {
+    
+    const newUser = await this.userModel.findOrCreate({
+      where: { email:authDto.email },
+      defaults: authDto
+    })
+
+    return newUser
+  }
+
+  async getUserByDto(param: FindAuthType ){
+    return await this.userModel.findOne({
+      where: param
+    })
+  }
+
   async getUsers(email?: string) {
-    return await this.authModel.findAll({
+    return await this.userModel.findAll({
       attributes: ['id', 'email'],
       where: {
         email: {

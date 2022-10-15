@@ -27,5 +27,8 @@ export class MessageModel extends Model<MessageModel> {
   chatId: number
 
   @BelongsTo(() => ChatModel)
-  team: ChatModel
+  chat: ChatModel
+
+  @Column({ type: DataType.INTEGER })
+  userId: number
 }

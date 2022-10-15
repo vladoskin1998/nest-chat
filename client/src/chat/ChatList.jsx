@@ -1,6 +1,7 @@
 import React, { useState, useId, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { $api } from '../api/Api';
+import { UPDATE_LIST_CHAT } from "../config";
 import { choiceUser } from '../reducer/ChatReducer';
 
 export const ChatList = ({ socket }) => {
@@ -8,24 +9,37 @@ export const ChatList = ({ socket }) => {
     const [chatList, setChatList] = useState([])
     const idList = useId();
     const { id } = useSelector(state => state.authReducer.payloadUser)
-    const { currentChatId } = useSelector(state => state.chatReducer)
+    const { currentChatId, createdNewChat } = useSelector(state => state.chatReducer)
 
     const dispatch = useDispatch()
 
-    useEffect(() => {
-        $api.post('chat/list-chat', { userId: id })
+    const getChatList = () => {
+        $api.post('chat/list-chat', { sourceUserId: id })
             .then(res => setChatList(res.data))
             .catch(e => console.log(e))
+    }
+
+    useEffect(() => {
+
+   
+        socket.current?.on(UPDATE_LIST_CHAT, () => {
+            getChatList()
+            console.log(UPDATE_LIST_CHAT);
+        })
     }, [])
 
-    console.log(chatList);
+    useEffect(() => {
+        getChatList()
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [createdNewChat])
 
-    const handlerItem = (chatId, email) => {
+
+    const handlerItem = (chatId, destinationEmail) => {
         dispatch(
             choiceUser(
                 {
                     currentChatId: chatId,
-                    currentEmail: email,
+                    destinationEmail,
                 }
             )
         )

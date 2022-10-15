@@ -1,9 +1,10 @@
 import React, { useState, useId } from "react";
 import { $api } from '../api/Api';
 import { useDispatch, useSelector } from "react-redux";
-import { choiceUser } from "../reducer/ChatReducer";
+import { createNewChat } from "../reducer/ChatReducer";
+import { NEW_CREATE_CHAT } from "../config";
 
-export const SearchUser = () => {
+export const SearchUser = ({ socket }) => {
 
     const [search, setSearch] = useState('')
     const [searchList, setSearchList] = useState([])
@@ -19,19 +20,25 @@ export const SearchUser = () => {
             .catch((e) => console.log(e))
     }
 
-    const handlerNewChat = (toUid) => {
-        $api.post('chat/create-chat', { usersId: [toUid, id] })
+    const handlerNewChat = async (destinationUid) => {
+        $api.post('chat/create-chat', {
+            destinationUserId: destinationUid,
+            sourceUserId: id
+        })
             .then((res) => {
                 dispatch(
-                    choiceUser(
+                    createNewChat(
                         {
-                            currentChatId: 0,
-                            currentEmail: '',
+                            currentChatId: res.data.chatId,
+                            destinationEmail: res.data.email,
                         }
                     )
                 )
+                socket.current?.emit(NEW_CREATE_CHAT, res.data.email)
             })
             .catch(e => console.log(e))
+
+
 
     }
 

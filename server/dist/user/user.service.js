@@ -16,13 +16,25 @@ exports.UserService = void 0;
 const common_1 = require("@nestjs/common");
 const sequelize_1 = require("@nestjs/sequelize");
 const sequelize_2 = require("sequelize");
-const auth_model_1 = require("../auth/auth.model");
+const user_model_1 = require("./user.model");
 let UserService = class UserService {
-    constructor(authModel) {
-        this.authModel = authModel;
+    constructor(userModel) {
+        this.userModel = userModel;
+    }
+    async createOrFindUser(authDto) {
+        const newUser = await this.userModel.findOrCreate({
+            where: { email: authDto.email },
+            defaults: authDto
+        });
+        return newUser;
+    }
+    async getUserByDto(param) {
+        return await this.userModel.findOne({
+            where: param
+        });
     }
     async getUsers(email) {
-        return await this.authModel.findAll({
+        return await this.userModel.findAll({
             attributes: ['id', 'email'],
             where: {
                 email: {
@@ -34,7 +46,7 @@ let UserService = class UserService {
 };
 UserService = __decorate([
     (0, common_1.Injectable)(),
-    __param(0, (0, sequelize_1.InjectModel)(auth_model_1.AuthModel)),
+    __param(0, (0, sequelize_1.InjectModel)(user_model_1.UserModel)),
     __metadata("design:paramtypes", [Object])
 ], UserService);
 exports.UserService = UserService;

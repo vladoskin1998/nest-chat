@@ -6,7 +6,7 @@ import {
     ForeignKey,
     BelongsTo
   } from 'sequelize-typescript'
-  import { AuthModel } from '../../auth/auth.model'
+  import { UserModel } from '../../user/user.model'
   import { ChatModel } from './chat.model';
     
   @Table({ tableName: 'chat_users' })
@@ -19,11 +19,11 @@ import {
     })
     id: number
   
-    @ForeignKey(() => AuthModel)
+    @ForeignKey(() => UserModel)
     @Column(DataType.INTEGER)
     userId: number
-    @BelongsTo(() => AuthModel)
-    user: AuthModel
+    @BelongsTo(() => UserModel)
+    user: UserModel
   
     @ForeignKey(() => ChatModel)
     @Column(DataType.INTEGER)

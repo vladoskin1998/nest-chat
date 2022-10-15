@@ -1,11 +1,11 @@
 import { CanActivate, ExecutionContext } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { TokenService } from '../../token/token.service';
-import { AuthModel } from '../auth.model';
+import { UserService } from '../../user/user.service';
 export declare class AuthHttpGuard implements CanActivate {
     private tokenService;
-    private authModel;
-    constructor(tokenService: TokenService, authModel: typeof AuthModel);
+    private userService;
+    constructor(tokenService: TokenService, userService: UserService);
     canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean>;
-    authByAccessToken(token: string): Promise<boolean>;
+    authByAccessToken(accessToken: string): Promise<boolean>;
 }

@@ -1,5 +1,5 @@
 import { Column, DataType, Model,Table, BelongsTo,ForeignKey} from "sequelize-typescript";
-import { AuthModel } from '../auth/auth.model';
+import { UserModel } from '../user/user.model';
 import { TokenModelI } from '../types/types';
 
 @Table({tableName:'tokens'})
@@ -15,12 +15,12 @@ export class TokenModel extends Model<TokenModel, TokenModelI >{
     })
     accessToken: string
 
-    @ForeignKey(() => AuthModel)
+    @ForeignKey(() => UserModel)
     @Column
     userId: number
 
-    @BelongsTo(() => AuthModel)
-    user: AuthModel
+    @BelongsTo(() => UserModel)
+    user: UserModel
 
 
 

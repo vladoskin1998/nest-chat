@@ -22,13 +22,16 @@ let ChatController = class ChatController {
         this.chatService = chatService;
     }
     async createChat(dto) {
-        console.log('createChat--->', dto);
-        const chatId = await this.chatService.newChat(dto);
-        return { chatId };
+        const targetChat = await this.chatService.newChat(dto);
+        return targetChat;
     }
     async listChat(dto) {
         const userChatList = await this.chatService.listChat(dto);
-        return userChatList.chats;
+        return userChatList === null || userChatList === void 0 ? void 0 : userChatList.chats;
+    }
+    async getChatHistory(chatId) {
+        const history = await this.chatService.getChatHistory(chatId);
+        return history;
     }
 };
 __decorate([
@@ -45,6 +48,13 @@ __decorate([
     __metadata("design:paramtypes", [chat_dto_1.ListDto]),
     __metadata("design:returntype", Promise)
 ], ChatController.prototype, "listChat", null);
+__decorate([
+    (0, common_1.Get)('list-message'),
+    __param(0, (0, common_1.Query)('chatId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], ChatController.prototype, "getChatHistory", null);
 ChatController = __decorate([
     (0, common_1.UseGuards)(auth_http_guard_1.AuthHttpGuard),
     (0, common_1.Controller)('chat'),

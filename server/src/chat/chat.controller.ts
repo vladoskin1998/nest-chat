@@ -1,4 +1,4 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common'
+import { Body, Controller, Get, Post, UseGuards,Query } from '@nestjs/common'
 import { AuthHttpGuard } from '../auth/guard/auth-http.guard'
 import { ChatService } from './chat.service'
 import { ChatDto, ListDto } from './dto/chat.dto'
@@ -10,9 +10,9 @@ export class ChatController {
 
   @Post('create-chat')
   async createChat(@Body() dto: ChatDto) {
-    console.log('createChat--->', dto)
-    const chatId = await this.chatService.newChat(dto)
-    return { chatId }
+  //  console.log('createChat--->', dto)
+    const targetChat = await this.chatService.newChat(dto)
+    return targetChat
   }
 
   @Post('list-chat')
@@ -20,6 +20,15 @@ export class ChatController {
     @Body() dto: ListDto,
     ) {
     const userChatList = await this.chatService.listChat(dto)
-    return userChatList.chats
+    return userChatList?.chats
+  }
+
+  @Get('list-message')
+  async getChatHistory(
+    @Query('chatId')
+    chatId: string
+  ){
+    const history = await this.chatService.getChatHistory(chatId)
+    return history
   }
 }

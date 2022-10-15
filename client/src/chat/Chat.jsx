@@ -1,129 +1,126 @@
-import React, { useState, useEffect, useRef } from 'react';
-import io from 'socket.io-client';
+import React from 'react';
 import { SearchUser } from './SearchUser';
 import { ChatList } from './ChatList';
 import { Navbar } from '../navbar/Navbar';
-import { ChatMessenger } from './ChatMessenger';
+import { Messenger } from './messenger/Messenger';
+import io from 'socket.io-client';
+import { useEffect, useRef } from 'react';
+import { baseURL, LEAVE_ROOM } from '../config';
+import { useDispatch, useSelector } from "react-redux";
+import { choiceUser } from '../reducer/ChatReducer';
+import { NOTIFICATION, JOIN_ROOM, AUTH_SOCKET } from '../config';
+import { useState } from 'react';
+import { $auth } from '../api/Api';
 
-
-const URL = "http://localhost:5000";
 
 
 export const Chat = () => {
 
-    let socket = useRef(null)
+    const socket = useRef(null)
 
-    const [user, setUser] = useState([])
+    const [load, setLoad] = useState(false)
 
-    const [message, setMessage] = useState({
-        userId: '',
-        userName: '',
-        message: '',
-    })
-    const [messageList, setMessageList] = useState([])
+    const dispatch = useDispatch()
 
-    // console.log(socket);
+    const { email } = useSelector(state => state.authReducer.payloadUser)
 
     useEffect(() => {
 
-        let name = localStorage.getItem('userId');
+        socket.current = io(baseURL, {
+            auth: {
+                accessToken: localStorage.getItem('accessToken')
+            }
+        })
 
-        if (!name) {
-            localStorage.setItem('userId', Math.random().toString());
-            name = localStorage.getItem('userId');
+        if (socket.current) {
+            setLoad(true)
         }
 
 
-        socket.current = io(URL)
+        socket.current?.on('connect', () => {
+            console.log('Successfully connected!');
+        });
 
-        socket.current.auth = { userName: name };
+        console.log(socket.current);
 
-        setMessage(s => ({ ...s, userName: name }))
+        socket.current?.on(AUTH_SOCKET, async (socketEvent, payload) => {
+            console.log(socketEvent, payload);
+            try {
+                const res = await $auth.post('refresh', {})
+                //    console.log(res);
+                localStorage.setItem('accessToken', res.data.accessToken);
 
-        socket.current.on('users', user => setUser(user))
+                socket.current.auth.accessToken = res.data.accessToken;
+                socket.current?.disconnect().connect();
+                socket.current?.emit(socketEvent, payload)
 
-        socket.current.on('private message', (id, msg) => setMessageList(s => [...s, msg]))
+            } catch (error) {
+                document.location.replace(`http://${window.location.host}`);
+                localStorage.removeItem('accessToken')
+            }
+
+            // .then((res) => {
+            //     console.log("socketEvent---->", socketEvent);
+            //     localStorage.setItem('accessToken', res.data.accessToken);
+            //     socket.current?.emit(socketEvent, payload)
+            // })
+            // .catch(e => {
+            //     document.location.replace(`http://${window.location.host}`);
+            //     localStorage.removeItem('accessToken')
+            // })
+        })
+
+        socket.current.emit(JOIN_ROOM, email)
+
+        socket.current?.on(NOTIFICATION, (currentChatId, destinationEmail) => {
+
+            const goToChat = window.confirm(`Message from ${destinationEmail}`);
+
+            if (goToChat) {
+                dispatch(
+                    choiceUser(
+                        {
+                            currentChatId,
+                            destinationEmail,
+                        }
+                    )
+                )
+            }
+        })
 
         return () => {
-            socket.current.disconnect()
+            socket.current?.emit(LEAVE_ROOM, email)
+            socket.current?.disconnect()
         }
-
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
 
-    // console.log("message--->", message);
-
-    const send = () => {
-        socket.current.emit('send_message', message.chatid, message.message)
-        setMessage(s => ({ ...s, message: "" }))
-    }
-
-    const chatToUser = ({ userID }) => {
-        console.log("chatid--->", userID);
-
-        setMessage(s => ({ ...s, chatid: userID }))
-    }
 
 
-    // console.log(user);
     return (
-        socket.current !== 0
-            ?
-            <>
-                <Navbar />
-                <div style={{ display: 'grid', margin:'10px', gridTemplateColumns: '250px 250px 1fr', columnGap:'15px' }}>
-                    <SearchUser />
-                    <ChatList soket={socket} />
-                    <ChatMessenger />
-                    {/* <div style={{ display: 'flex' }}>
-                        <div style={{ width: '20vw' }}>
-                            {
-                                user.filter(it => it.userID !== socket.current.id).map((it, index) => <div onClick={() => chatToUser(it)} key={index} style={styleUser}>
-                                    user {index}
-                                </div>
-                                )
-                            }
-                        </div>
-                        <div>
-                            <div style={styleInput}>
-                                <input type="text"
-                                    onChange={e => setMessage(s => ({ ...s, message: e.target.value }))}
-                                    value={message.message}
-                                />
-                                <button onClick={send}>send</button>
-                            </div>
-                            <div>
-                                {
-                                    messageList.map((it, index) => <div style={{ padding: "15px" }} key={index}>{it}</div>)
-                                }
-                            </div>
-                        </div>
-                    </div> */}
-                </div>
-            </>
+        <>
+            <Navbar />
+            {
+                load
+                    ? <div style={styleChat}>
+                        <SearchUser socket={socket} />
+                        <ChatList socket={socket} />
+                        <Messenger socket={socket} />
+                    </div>
+                    : '...loading'
+            }
 
-            :
-            <div>...loading</div>
+        </>
     );
 }
 
-
-
-const styleUser = {
-    padding: "10px",
-    background: "grey",
-    cursor: "pointer",
-    borderRadius: "4px",
-    margin: "8px"
+const styleChat = {
+    display: 'grid',
+    margin: '10px',
+    gridTemplateColumns: '250px 250px 1fr',
+    columnGap: '15px'
 }
-
-const styleInput = {
-    display: 'flex',
-    padding: "20px",
-    columnGap: "10px",
-    width: '70vw'
-}
-
 
 
 

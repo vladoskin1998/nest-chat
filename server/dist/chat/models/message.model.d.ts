@@ -4,5 +4,6 @@ export declare class MessageModel extends Model<MessageModel> {
     id: number;
     message: string;
     chatId: number;
-    team: ChatModel;
+    chat: ChatModel;
+    userId: number;
 }

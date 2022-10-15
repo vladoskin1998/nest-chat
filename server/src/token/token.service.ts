@@ -32,7 +32,7 @@ export class TokenService {
       refreshToken: this.jwtService.sign(
         { id,email, role },
         {
-          expiresIn: 295,
+          expiresIn: 25,
         },
       ),
     }

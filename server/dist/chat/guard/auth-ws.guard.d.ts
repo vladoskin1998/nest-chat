@@ -1,5 +1,7 @@
-import { CanActivate, ExecutionContext } from "@nestjs/common";
-import { Observable } from "rxjs";
+import { CanActivate, ExecutionContext } from '@nestjs/common';
+import { TokenService } from '../../token/token.service';
 export declare class AuthWs implements CanActivate {
-    canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean>;
+    private tokenService;
+    constructor(tokenService: TokenService);
+    canActivate(context: ExecutionContext): Promise<boolean>;
 }

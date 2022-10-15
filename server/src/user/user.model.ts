@@ -15,7 +15,7 @@ import { ChatModel } from '../chat/models/chat.model'
 import { ChatUserModel } from '../chat/models/chat-user.model'
 
 @Table({ tableName: 'users' })
-export class AuthModel extends Model<AuthModel, UserCreationAttrs> {
+export class UserModel extends Model<UserModel, UserCreationAttrs> {
   @Column({
     type: DataType.INTEGER,
     unique: true,

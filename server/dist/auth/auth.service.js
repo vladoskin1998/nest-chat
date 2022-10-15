@@ -8,44 +8,41 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var __param = (this && this.__param) || function (paramIndex, decorator) {
-    return function (target, key) { decorator(target, key, paramIndex); }
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthService = void 0;
 const common_1 = require("@nestjs/common");
-const sequelize_1 = require("@nestjs/sequelize");
-const auth_model_1 = require("./auth.model");
 const bcrypt = require("bcrypt");
 const token_service_1 = require("../token/token.service");
 const enum_1 = require("../enum/enum");
+const user_service_1 = require("../user/user.service");
 let AuthService = class AuthService {
-    constructor(authModel, tokenService) {
-        this.authModel = authModel;
+    constructor(tokenService, userService) {
         this.tokenService = tokenService;
+        this.userService = userService;
     }
     async registration(authDto) {
         const { email } = authDto;
         const role = (authDto === null || authDto === void 0 ? void 0 : authDto.role) || enum_1.Roles.USER;
-        const newUser = await this.authModel.findOrCreate({
-            where: { email },
-            defaults: Object.assign(Object.assign({}, authDto), { password: bcrypt.hashSync(authDto.password, 4) }),
-        });
-        if (!newUser[1]) {
+        const newUser = await this.userService.createOrFindUser(Object.assign(Object.assign({}, authDto), { password: bcrypt.hashSync(authDto.password, 3) }));
+        const [user, isCreated] = newUser;
+        if (!isCreated) {
             throw new common_1.HttpException('user already created', common_1.HttpStatus.BAD_REQUEST);
         }
-        const createdUser = newUser[0];
-        const tokens = await this.tokenService.createTokens({ id: createdUser.id, email, role });
-        await createdUser.$create('tokens', tokens);
+        const tokens = await this.tokenService.createTokens({
+            id: user.id,
+            email,
+            role,
+        });
+        await user.$create('tokens', tokens);
         return tokens;
     }
     async login(authDto) {
         const { email, password } = authDto;
-        const user = await this.authModel.findOne({ where: { email } });
+        const user = await this.userService.getUserByDto({ email });
         if (!user) {
             throw new common_1.HttpException('can not find user', common_1.HttpStatus.BAD_REQUEST);
         }
-        const checkPassword = bcrypt.compare(password, user.password);
+        const checkPassword = await bcrypt.compare(password, user.password);
         if (!checkPassword) {
             throw new common_1.HttpException('bad password', common_1.HttpStatus.BAD_REQUEST);
         }
@@ -78,8 +75,8 @@ let AuthService = class AuthService {
 };
 AuthService = __decorate([
     (0, common_1.Injectable)(),
-    __param(0, (0, sequelize_1.InjectModel)(auth_model_1.AuthModel)),
-    __metadata("design:paramtypes", [Object, token_service_1.TokenService])
+    __metadata("design:paramtypes", [token_service_1.TokenService,
+        user_service_1.UserService])
 ], AuthService);
 exports.AuthService = AuthService;
 //# sourceMappingURL=auth.service.js.map

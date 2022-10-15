@@ -8,49 +8,42 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var __param = (this && this.__param) || function (paramIndex, decorator) {
-    return function (target, key) { decorator(target, key, paramIndex); }
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthHttpGuard = void 0;
 const common_1 = require("@nestjs/common");
 const token_service_1 = require("../../token/token.service");
-const sequelize_1 = require("@nestjs/sequelize");
-const auth_model_1 = require("../auth.model");
+const user_service_1 = require("../../user/user.service");
 let AuthHttpGuard = class AuthHttpGuard {
-    constructor(tokenService, authModel) {
+    constructor(tokenService, userService) {
         this.tokenService = tokenService;
-        this.authModel = authModel;
+        this.userService = userService;
     }
     canActivate(context) {
         var _a;
         const request = context.switchToHttp().getRequest();
-        const tokenAccess = (_a = request.headers) === null || _a === void 0 ? void 0 : _a.authorization;
-        if (!tokenAccess) {
+        const accessToken = (_a = request.headers) === null || _a === void 0 ? void 0 : _a.authorization;
+        if (!accessToken) {
             throw new common_1.HttpException("Request don`t have authorization header", common_1.HttpStatus.BAD_REQUEST);
         }
-        return this.authByAccessToken(tokenAccess);
+        return this.authByAccessToken(accessToken);
     }
-    async authByAccessToken(token) {
-        const payload = await this.tokenService.verifyToken(token);
+    async authByAccessToken(accessToken) {
+        const payload = await this.tokenService.verifyToken(accessToken);
         if (payload instanceof Error) {
             throw new common_1.HttpException("UNAUTHORIZED, Bad token", common_1.HttpStatus.UNAUTHORIZED);
         }
-        const { email } = payload;
-        const user = await this.authModel.findOne({
-            where: { email },
-        });
+        const user = await this.userService.getUserByDto({ id: payload.id });
         if (!user) {
             throw new common_1.HttpException("DB don`t find user", common_1.HttpStatus.BAD_REQUEST);
         }
         const userToken = await user.$get('tokens');
-        return userToken.accessToken === token;
+        return userToken.accessToken === accessToken;
     }
 };
 AuthHttpGuard = __decorate([
     (0, common_1.Injectable)(),
-    __param(1, (0, sequelize_1.InjectModel)(auth_model_1.AuthModel)),
-    __metadata("design:paramtypes", [token_service_1.TokenService, Object])
+    __metadata("design:paramtypes", [token_service_1.TokenService,
+        user_service_1.UserService])
 ], AuthHttpGuard);
 exports.AuthHttpGuard = AuthHttpGuard;
 //# sourceMappingURL=auth-http.guard.js.map

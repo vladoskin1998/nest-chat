@@ -1,24 +1,23 @@
-import React, { useState } from "react";
+import React from "react";
 import { useDispatch } from "react-redux";
 import { logout } from "../http/AuthThunk";
 import { useSelector } from "react-redux";
+import { chatInit } from '../reducer/ChatReducer';
 
 export const Navbar = () => {
 
     const dispatch = useDispatch()
     const { email } = useSelector(state => state.authReducer.payloadUser)
 
-
-
     const handlerLogout = () => {
-        dispatch(
-            logout()
-        )
-    } 
+
+        dispatch(logout())
+        dispatch(chatInit())
+    }
 
     return (
         <div style={styleHeader}>
-            <h4 style={{margin:0}}>{email}</h4>
+            <h4 style={{ margin: 0 }}>{email}</h4>
             <button onClick={handlerLogout}>EXIT</button>
         </div>
     )

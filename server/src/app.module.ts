@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common'
 import { SequelizeModule } from '@nestjs/sequelize'
 import { ConfigModule } from '@nestjs/config'
-import { AuthModel } from './auth/auth.model'
+import { UserModel } from './user/user.model'
 import { AuthModule } from './auth/auth.module'
 import { TokenModel } from './token/token.model'
 import { ChatModule } from './chat/chat.module'
@@ -21,8 +21,9 @@ import { UserModule } from './user/user.module';
       username: 'nest',
       password: 'Vlados1998',
       database: 'testdb',
-      models: [AuthModel, TokenModel, ChatModel, ChatUserModel, MessageModel],
+      models: [UserModel, TokenModel, ChatModel, ChatUserModel, MessageModel],
       autoLoadModels: true,
+      logging: false
     }),
     AuthModule,
     ChatModule,

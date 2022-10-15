@@ -1,0 +1,15 @@
+import { Model } from 'sequelize-typescript';
+import { TokenModel } from '../token/token.model';
+import { Roles } from '../enum/enum';
+import { UserCreationAttrs } from '../types/types';
+import { ChatModel } from '../chat/models/chat.model';
+import { ChatUserModel } from '../chat/models/chat-user.model';
+export declare class UserModel extends Model<UserModel, UserCreationAttrs> {
+    id: number;
+    email: string;
+    password: string;
+    role: Roles;
+    tokens: TokenModel;
+    chats: ChatModel[];
+    chatUserId: ChatUserModel[];
+}

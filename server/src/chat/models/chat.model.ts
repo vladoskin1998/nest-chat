@@ -6,7 +6,7 @@ import {
   BelongsToMany,
   HasMany
 } from 'sequelize-typescript'
-import { AuthModel } from '../../auth/auth.model'
+import { UserModel } from '../../user/user.model'
 import { ChatUserModel } from './chat-user.model'
 import { MessageModel } from './message.model'
 
@@ -20,8 +20,8 @@ export class ChatModel extends Model<ChatModel> {
   })
   id: number
 
-  @BelongsToMany(() => AuthModel, () => ChatUserModel)
-  users: AuthModel[]
+  @BelongsToMany(() => UserModel, () => ChatUserModel)
+  users: UserModel[]
 
   @HasMany(() => ChatUserModel)
   chatUserId: ChatUserModel[]

@@ -7,7 +7,9 @@ import { SequelizeModule } from '@nestjs/sequelize'
 import { ChatModel } from './models/chat.model'
 import { ChatUserModel } from './models/chat-user.model'
 import { MessageModel } from './models/message.model'
-import { AuthModel } from 'src/auth/auth.model'
+import { UserModel } from 'src/user/user.model'
+import { UserModule } from 'src/user/user.module'
+import { TokenModule } from 'src/token/token.module'
 
 @Module({
   imports: [
@@ -16,8 +18,10 @@ import { AuthModel } from 'src/auth/auth.model'
       ChatModel,
       ChatUserModel,
       MessageModel,
-      AuthModel,
+      UserModel,
     ]),
+    UserModule,
+    TokenModule,
   ],
   providers: [ChatGateway, ChatService],
   controllers: [ChatController],

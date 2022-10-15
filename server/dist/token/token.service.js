@@ -31,7 +31,7 @@ let TokenService = class TokenService {
                 expiresIn: 15,
             }),
             refreshToken: this.jwtService.sign({ id, email, role }, {
-                expiresIn: 295,
+                expiresIn: 25,
             }),
         };
     }

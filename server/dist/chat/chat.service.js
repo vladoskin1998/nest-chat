@@ -17,43 +17,47 @@ const common_1 = require("@nestjs/common");
 const sequelize_1 = require("@nestjs/sequelize");
 const chat_model_1 = require("./models/chat.model");
 const chat_user_model_1 = require("./models/chat-user.model");
-const auth_model_1 = require("../auth/auth.model");
+const user_model_1 = require("../user/user.model");
 const sequelize_2 = require("sequelize");
 const sequelize_3 = require("sequelize");
+const message_model_1 = require("./models/message.model");
 let ChatService = class ChatService {
-    constructor(chatModel, chatUserModel, authModel) {
+    constructor(chatModel, chatUserModel, userModel, messageModel) {
         this.chatModel = chatModel;
         this.chatUserModel = chatUserModel;
-        this.authModel = authModel;
+        this.userModel = userModel;
+        this.messageModel = messageModel;
     }
-    async newChat({ usersId }) {
+    async newChat({ destinationUserId, sourceUserId, }) {
         try {
+            const { email } = await this.userModel.findByPk(destinationUserId, {
+                attributes: ['email'],
+            });
             const checkChatId = await this.chatUserModel.findAll({
                 where: {
-                    userId: usersId,
+                    userId: [destinationUserId, sourceUserId],
                 },
                 group: ['chatId'],
-                attributes: ['chatId', 'userId'],
+                attributes: ['chatId'],
                 having: sequelize_2.Sequelize.literal('count(chatId) > 1'),
             });
-            console.log(checkChatId);
             if (checkChatId.length) {
-                return checkChatId[0].chatId;
+                return { email, chatId: checkChatId[0].chatId };
             }
             const chat = await this.chatModel.create({});
-            await Promise.all(usersId.map(async (userId) => {
-                const user = await this.authModel.findByPk(userId);
+            await Promise.all([destinationUserId, sourceUserId].map(async (userId) => {
+                const user = await this.userModel.findByPk(userId);
                 await user.$add('chats', chat, { through: this.chatUserModel });
             }));
-            return chat.id;
+            return { email, chatId: chat.id };
         }
         catch (error) {
             throw new Error('SERVER ERROR');
         }
     }
-    async listChat({ userId }) {
+    async listChat({ sourceUserId }) {
         try {
-            const userChatList = await this.authModel.findByPk(userId, {
+            const userChatList = await this.userModel.findByPk(sourceUserId, {
                 include: [
                     {
                         model: chat_model_1.ChatModel,
@@ -62,10 +66,10 @@ let ChatService = class ChatService {
                         },
                         include: [
                             {
-                                model: auth_model_1.AuthModel,
+                                model: user_model_1.UserModel,
                                 where: {
                                     id: {
-                                        [sequelize_3.Op.ne]: userId,
+                                        [sequelize_3.Op.ne]: sourceUserId,
                                     },
                                 },
                                 through: {
@@ -84,13 +88,41 @@ let ChatService = class ChatService {
             throw new Error('SERVER ERROR');
         }
     }
+    async getChatHistory(chatId) {
+        try {
+            const history = this.messageModel.findAll({
+                where: {
+                    chatId: chatId,
+                },
+                attributes: ['message', ['userId', 'id']],
+            });
+            return history;
+        }
+        catch (error) {
+            throw new Error('SERVER ERROR');
+        }
+    }
+    async addMessage(payload) {
+        try {
+            const { message, currentChatId, messageFromId } = payload;
+            await this.messageModel.create({
+                message: message,
+                chatId: currentChatId,
+                userId: messageFromId,
+            });
+        }
+        catch (error) {
+            throw new Error('SERVER ERROR');
+        }
+    }
 };
 ChatService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, sequelize_1.InjectModel)(chat_model_1.ChatModel)),
     __param(1, (0, sequelize_1.InjectModel)(chat_user_model_1.ChatUserModel)),
-    __param(2, (0, sequelize_1.InjectModel)(auth_model_1.AuthModel)),
-    __metadata("design:paramtypes", [Object, Object, Object])
+    __param(2, (0, sequelize_1.InjectModel)(user_model_1.UserModel)),
+    __param(3, (0, sequelize_1.InjectModel)(message_model_1.MessageModel)),
+    __metadata("design:paramtypes", [Object, Object, Object, Object])
 ], ChatService);
 exports.ChatService = ChatService;
 //# sourceMappingURL=chat.service.js.map

@@ -4,16 +4,11 @@ import {
   Post,
   Res,
   Req,
-  UseGuards,
-  Headers,
   Delete,
-  HttpException,
 } from '@nestjs/common'
 import { Response, Request } from 'express'
-import { request } from 'http'
 import { AuthService } from './auth.service'
 import { AuthDto } from './dto/auth.dto'
-import { AuthHttpGuard } from './guard/auth-http.guard'
 // import { RolesGuard } from './guard/role.guard'
 // import { RoleMetadata} from './guard/role.metadata'
 // import { Roles } from '../enum/enum'

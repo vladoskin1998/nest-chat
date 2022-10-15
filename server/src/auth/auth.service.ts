@@ -1,42 +1,40 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
-import { InjectModel } from '@nestjs/sequelize'
-import { AuthModel } from './auth.model'
 import { AuthDto } from './dto/auth.dto'
 import * as bcrypt from 'bcrypt'
 import { TokenService } from '../token/token.service'
-import { TokenModel } from '../token/token.model'
 import { Roles } from 'src/enum/enum'
-import { Response } from 'express'
+import { UserService } from '../user/user.service'
 
 @Injectable()
 export class AuthService {
   constructor(
-    @InjectModel(AuthModel)
-    private authModel: typeof AuthModel,
     private tokenService: TokenService,
+    private userService: UserService
   ) {}
 
   async registration(authDto: AuthDto) {
     const { email } = authDto
     const role = authDto?.role || Roles.USER
 
-    const newUser = await this.authModel.findOrCreate({
-      where: { email },
-      defaults: {
-        ...authDto,
-        password: bcrypt.hashSync(authDto.password, 4),
-      },
-    })
+    const newUser = await this.userService.createOrFindUser(
+      {
+        ...authDto, password: bcrypt.hashSync(authDto.password, 3),
+      }
+    )
 
-    if (!newUser[1]) {
+    const [user, isCreated] = newUser
+
+    if (!isCreated) {
       throw new HttpException('user already created', HttpStatus.BAD_REQUEST)
     }
 
-    const createdUser = newUser[0]
+    const tokens = await this.tokenService.createTokens({
+      id: user.id,
+      email,
+      role,
+    })
 
-    const tokens = await this.tokenService.createTokens({ id:createdUser.id, email, role })
-
-    await createdUser.$create('tokens', tokens)
+    await user.$create('tokens', tokens)
 
     return tokens
   }
@@ -44,13 +42,13 @@ export class AuthService {
   async login(authDto: AuthDto) {
     const { email, password } = authDto
 
-    const user = await this.authModel.findOne({ where: { email } })
+    const user = await this.userService.getUserByDto({email})
 
     if (!user) {
       throw new HttpException('can not find user', HttpStatus.BAD_REQUEST)
     }
 
-    const checkPassword = bcrypt.compare(password, user.password)
+    const checkPassword = await bcrypt.compare(password, user.password)
 
     if (!checkPassword) {
       throw new HttpException('bad password', HttpStatus.BAD_REQUEST)
@@ -69,10 +67,7 @@ export class AuthService {
     return tokens
   }
 
-  async refresh({ refreshToken }:{ refreshToken?: string }) {
-
-    // console.log('refreshToken------>', refreshToken);
-    
+  async refresh({ refreshToken }: { refreshToken?: string }) {
     if (!refreshToken) {
       throw new HttpException('not authorization', HttpStatus.UNAUTHORIZED)
     }
@@ -94,8 +89,7 @@ export class AuthService {
     return newToken
   }
 
-  async logout(refreshToken:string): Promise<void> {
+  async logout(refreshToken: string): Promise<void> {
     await this.tokenService.logoutUser(refreshToken)
   }
-
 }

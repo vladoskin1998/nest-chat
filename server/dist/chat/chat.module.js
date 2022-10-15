@@ -16,7 +16,9 @@ const sequelize_1 = require("@nestjs/sequelize");
 const chat_model_1 = require("./models/chat.model");
 const chat_user_model_1 = require("./models/chat-user.model");
 const message_model_1 = require("./models/message.model");
-const auth_model_1 = require("../auth/auth.model");
+const user_model_1 = require("../user/user.model");
+const user_module_1 = require("../user/user.module");
+const token_module_1 = require("../token/token.module");
 let ChatModule = class ChatModule {
 };
 ChatModule = __decorate([
@@ -27,8 +29,10 @@ ChatModule = __decorate([
                 chat_model_1.ChatModel,
                 chat_user_model_1.ChatUserModel,
                 message_model_1.MessageModel,
-                auth_model_1.AuthModel,
+                user_model_1.UserModel,
             ]),
+            user_module_1.UserModule,
+            token_module_1.TokenModule,
         ],
         providers: [chat_gateway_1.ChatGateway, chat_service_1.ChatService],
         controllers: [chat_controller_1.ChatController],

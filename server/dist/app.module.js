@@ -10,7 +10,7 @@ exports.AppModule = void 0;
 const common_1 = require("@nestjs/common");
 const sequelize_1 = require("@nestjs/sequelize");
 const config_1 = require("@nestjs/config");
-const auth_model_1 = require("./auth/auth.model");
+const user_model_1 = require("./user/user.model");
 const auth_module_1 = require("./auth/auth.module");
 const token_model_1 = require("./token/token.model");
 const chat_module_1 = require("./chat/chat.module");
@@ -32,8 +32,9 @@ AppModule = __decorate([
                 username: 'nest',
                 password: 'Vlados1998',
                 database: 'testdb',
-                models: [auth_model_1.AuthModel, token_model_1.TokenModel, chat_model_1.ChatModel, chat_user_model_1.ChatUserModel, message_model_1.MessageModel],
+                models: [user_model_1.UserModel, token_model_1.TokenModel, chat_model_1.ChatModel, chat_user_model_1.ChatUserModel, message_model_1.MessageModel],
                 autoLoadModels: true,
+                logging: false
             }),
             auth_module_1.AuthModule,
             chat_module_1.ChatModule,

@@ -9,23 +9,21 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ListDto = exports.ChatDto = void 0;
-const class_validator_1 = require("class-validator");
+exports.ChatDto = exports.ListDto = void 0;
 const sequelize_1 = require("sequelize");
 const class_transformer_1 = require("class-transformer");
-class ChatDto {
-}
-__decorate([
-    (0, class_validator_1.IsArray)(),
-    (0, class_transformer_1.Type)(() => sequelize_1.UUID),
-    __metadata("design:type", Array)
-], ChatDto.prototype, "usersId", void 0);
-exports.ChatDto = ChatDto;
 class ListDto {
 }
 __decorate([
     (0, class_transformer_1.Type)(() => sequelize_1.UUID),
     __metadata("design:type", Number)
-], ListDto.prototype, "userId", void 0);
+], ListDto.prototype, "sourceUserId", void 0);
 exports.ListDto = ListDto;
+class ChatDto extends ListDto {
+}
+__decorate([
+    (0, class_transformer_1.Type)(() => sequelize_1.UUID),
+    __metadata("design:type", Number)
+], ChatDto.prototype, "destinationUserId", void 0);
+exports.ChatDto = ChatDto;
 //# sourceMappingURL=chat.dto.js.map

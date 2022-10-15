@@ -1,15 +1,14 @@
 import { Injectable, CanActivate, ExecutionContext, HttpException, HttpStatus } from '@nestjs/common'
 import { Observable } from 'rxjs'
 import { TokenService } from '../../token/token.service'
-import { InjectModel } from '@nestjs/sequelize'
-import { AuthModel } from '../auth.model'
 import { Request } from 'express'
+import { UserService } from '../../user/user.service';
+
 @Injectable()
 export class AuthHttpGuard implements CanActivate {
   constructor(
     private tokenService: TokenService,
-    @InjectModel(AuthModel)
-    private authModel: typeof AuthModel,
+    private userService: UserService
   ) {}
 
   canActivate(
@@ -17,28 +16,24 @@ export class AuthHttpGuard implements CanActivate {
   ): boolean | Promise<boolean> | Observable<boolean> {
     const request: Request = context.switchToHttp().getRequest()
 
-    const tokenAccess = request.headers?.authorization
+    const accessToken = request.headers?.authorization
     
-    if (!tokenAccess) {
+    if (!accessToken) {
       throw new HttpException("Request don`t have authorization header", HttpStatus.BAD_REQUEST)
     }
 
-    return this.authByAccessToken(tokenAccess)
+    return this.authByAccessToken(accessToken)
   }
 
-  async authByAccessToken(token: string): Promise<boolean> {
+  async authByAccessToken(accessToken: string): Promise<boolean> {
     
-    const payload = await this.tokenService.verifyToken(token)
+    const payload = await this.tokenService.verifyToken(accessToken)
 
     if(payload instanceof Error){
       throw new HttpException("UNAUTHORIZED, Bad token", HttpStatus.UNAUTHORIZED)
     }
 
-    const {email} = payload
-    
-    const user = await this.authModel.findOne({
-      where: { email },
-    })
+    const user = await this.userService.getUserByDto({id: payload.id})
 
     if (!user) {
       throw new HttpException("DB don`t find user", HttpStatus.BAD_REQUEST)
@@ -46,7 +41,7 @@ export class AuthHttpGuard implements CanActivate {
 
     const userToken = await user.$get('tokens')
 
-    return userToken.accessToken === token
+    return userToken.accessToken === accessToken
   }
 }
 

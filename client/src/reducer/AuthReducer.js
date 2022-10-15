@@ -35,6 +35,7 @@ export const authReducer = createSlice({
             state.isLoad = true
         },
         [logout.fulfilled]: (state) => {
+            localStorage.clear('accessToken')
             state.isAuth = false
             state.isLoad = false
         },

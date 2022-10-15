@@ -11,7 +11,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ChatModel = void 0;
 const sequelize_typescript_1 = require("sequelize-typescript");
-const auth_model_1 = require("../../auth/auth.model");
+const user_model_1 = require("../../user/user.model");
 const chat_user_model_1 = require("./chat-user.model");
 const message_model_1 = require("./message.model");
 let ChatModel = class ChatModel extends sequelize_typescript_1.Model {
@@ -26,7 +26,7 @@ __decorate([
     __metadata("design:type", Number)
 ], ChatModel.prototype, "id", void 0);
 __decorate([
-    (0, sequelize_typescript_1.BelongsToMany)(() => auth_model_1.AuthModel, () => chat_user_model_1.ChatUserModel),
+    (0, sequelize_typescript_1.BelongsToMany)(() => user_model_1.UserModel, () => chat_user_model_1.ChatUserModel),
     __metadata("design:type", Array)
 ], ChatModel.prototype, "users", void 0);
 __decorate([

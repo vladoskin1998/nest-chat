@@ -10,17 +10,18 @@ exports.AuthModule = void 0;
 const common_1 = require("@nestjs/common");
 const auth_controller_1 = require("./auth.controller");
 const auth_service_1 = require("./auth.service");
-const auth_model_1 = require("./auth.model");
 const sequelize_1 = require("@nestjs/sequelize");
 const token_model_1 = require("../token/token.model");
 const config_1 = require("@nestjs/config");
+const user_module_1 = require("../user/user.module");
 let AuthModule = class AuthModule {
 };
 AuthModule = __decorate([
     (0, common_1.Module)({
         imports: [
-            sequelize_1.SequelizeModule.forFeature([auth_model_1.AuthModel, token_model_1.TokenModel]),
+            sequelize_1.SequelizeModule.forFeature([token_model_1.TokenModel]),
             config_1.ConfigModule.forRoot(),
+            user_module_1.UserModule,
         ],
         providers: [auth_service_1.AuthService],
         controllers: [auth_controller_1.AuthController],

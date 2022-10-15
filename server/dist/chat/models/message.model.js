@@ -37,7 +37,11 @@ __decorate([
 __decorate([
     (0, sequelize_typescript_1.BelongsTo)(() => chat_model_1.ChatModel),
     __metadata("design:type", chat_model_1.ChatModel)
-], MessageModel.prototype, "team", void 0);
+], MessageModel.prototype, "chat", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({ type: sequelize_typescript_1.DataType.INTEGER }),
+    __metadata("design:type", Number)
+], MessageModel.prototype, "userId", void 0);
 MessageModel = __decorate([
     (0, sequelize_typescript_1.Table)({ tableName: 'message' })
 ], MessageModel);

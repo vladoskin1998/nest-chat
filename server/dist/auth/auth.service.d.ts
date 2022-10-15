@@ -1,10 +1,10 @@
-import { AuthModel } from './auth.model';
 import { AuthDto } from './dto/auth.dto';
 import { TokenService } from '../token/token.service';
+import { UserService } from '../user/user.service';
 export declare class AuthService {
-    private authModel;
     private tokenService;
-    constructor(authModel: typeof AuthModel, tokenService: TokenService);
+    private userService;
+    constructor(tokenService: TokenService, userService: UserService);
     registration(authDto: AuthDto): Promise<import("../token/dto/token.dto").TokenDto>;
     login(authDto: AuthDto): Promise<import("../token/dto/token.dto").TokenDto>;
     refresh({ refreshToken }: {
